@@ -30,6 +30,7 @@ class Database extends Config
         'username'     => 'postgres',
         'password'     => 'nanashi774',
         'database'     => 'webpangkasgis',
+        'schema'       => 'public,extensions',
         'DBDriver'     => 'Postgre',
         'DBPrefix'     => '',
         'pConnect'     => false,
