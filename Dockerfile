@@ -28,4 +28,4 @@ RUN chown -R www-data:www-data writable \
 
 ENV CI_ENVIRONMENT=production
 
-CMD sh -c 'printf "Listen ${PORT:-8080}\n" > /etc/apache2/ports.conf && sed -ri "s/<VirtualHost \\*:[0-9]+>/<VirtualHost *:${PORT:-8080}>/" /etc/apache2/sites-available/000-default.conf && apache2-foreground'
+CMD sh -c 'PORT="${PORT:-8080}"; sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf; sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf; apache2-foreground'
