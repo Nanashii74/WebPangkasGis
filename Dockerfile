@@ -27,8 +27,12 @@ COPY . .
 RUN chown -R www-data:www-data writable \
     && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
     && printf '<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n</Directory>\n' > /etc/apache2/conf-available/codeigniter.conf \
+    && printf 'ServerName localhost\n' > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername \
     && a2enconf codeigniter
 
 ENV CI_ENVIRONMENT=production
 
-CMD sh -c 'PORT="${PORT:-80}"; rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf; ln -s ../mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load; ln -s ../mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf; sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf; sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf; apache2-foreground'
+EXPOSE 80
+
+CMD sh -c 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf; ln -s ../mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load; ln -s ../mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf; apache2-foreground'
