@@ -11,11 +11,8 @@ RUN apt-get update \
         unzip \
         zip \
     && docker-php-ext-install intl mbstring pgsql pdo_pgsql \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.conf \
-    && a2enmod rewrite headers \
+    && a2dismod -f mpm_event mpm_worker \
+    && a2enmod mpm_prefork rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -32,4 +29,4 @@ RUN chown -R www-data:www-data writable \
 
 ENV CI_ENVIRONMENT=production
 
-CMD ["apache2-foreground"]
+CMD sh -c 'PORT="${PORT:-80}"; sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf; sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf; apache2-foreground'
